@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>深圳湾日记</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row g-3">
+            <!-- 日历区 -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <button class="btn btn-light" onclick="changeMonth(-1)">← 上月</button>
+                        <h4 id="monthTitle" class="mb-0"></h4>
+                        <button class="btn btn-light" onclick="changeMonth(1)">下月 →</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered calendar-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>日</th><th>一</th><th>二</th><th>三</th>
+                                    <th>四</th><th>五</th><th>六</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendarBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志编辑区 -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg sticky-top">
+                    <div class="card-header bg-success text-white">
+                        <h5 id="logTitle" class="mb-0"></h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="logForm" onsubmit="saveLog(event)">
+                            <div class="mb-3">
+                                <label class="form-label">天气</label>
+                                <select class="form-select" name="天气">
+                                    <option value="">请选择天气</option>
+                                    <option value="晴">☀️ 晴</option>
+                                    <option value="阴">☁️ 阴</option>
+                                    <option value="雨">🌧️ 雨</option>
+                                    <option value="雪">❄️ 雪</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">心情</label>
+                                <select class="form-select" name="心情">
+                                    <option value="">请选择心情</option>
+                                    <option>😊 开心</option>
+                                    <option>😐 平静</option>
+                                    <option>😔 难过</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">醒来状态</label>
+                                <textarea class="form-control" name="醒来状态" 
+                                          rows="1" placeholder="醒来状态..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">HP值</label>
+                                <textarea class="form-control" name="HP" 
+                                          rows="1" placeholder="HP..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">San值</label>
+                                <textarea class="form-control" name="San" 
+                                          rows="1" placeholder="San..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">起床体重(斤)</label>
+                                <textarea class="form-control" name="起床体重" 
+                                          rows="1" placeholder="起床体重..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">腰围(cm)</label>
+                                <textarea class="form-control" name="腰围" 
+                                          rows="1" placeholder="腰围..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">用药与健康建议</label>
+                                <textarea class="form-control" name="用药与健康建议" 
+                                          rows="1" placeholder="用药与健康建议..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">计划与摘要</label>
+                                <textarea class="form-control" name="计划与摘要" 
+                                          rows="1" placeholder="计划与摘要..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">上午</label>
+                                <textarea class="form-control" name="上午" 
+                                          rows="2" placeholder="上午..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">下午</label>
+                                <textarea class="form-control" name="下午" 
+                                          rows="2" placeholder="下午..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">晚上</label>
+                                <textarea class="form-control" name="晚上" 
+                                          rows="2" placeholder="晚上..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">几天没做试验？</label>
+		<!--几天没有masturbation的隐晦表述-->
+                                <textarea class="form-control" name="几天没做试验" 
+                                          rows="1" placeholder="几天没做试验..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">心得备注</label>
+                                <textarea class="form-control" name="心得备注" 
+                                          rows="2" placeholder="心得备注..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">待提升属性</label>
+                                <textarea class="form-control" name="待提升属性" 
+                                          rows="8" placeholder="待提升属性..."></textarea>
+                            </div>
+                            <div class="mb-3"></div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                💾 保存日志
+                            </button>
+                            <div class="mb-3"></div>
+                            <button type="button" class="btn btn-primary w-100" id="aiButton">
+                                🤖 使用AI分析
+                            </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "HHJ": {
+    "password_hash": "scrypt:32768:8:1$tVsw1vfCpt7eMz6R$7b155a24876ba24017ea9625418543ae48153d2e693d99cd75fb64857372c1a9db2b2a1e2a4060554c2f3e15c5a7ff439152feb7b3f762e9459af271af4ea7c6",
+    "locked_until": null,
+    "failed_attempts": 0
+  }
+}

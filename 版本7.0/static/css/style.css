@@ -1,0 +1,40 @@
+.calendar-table {
+    table-layout: fixed;
+}
+
+.calendar-table td {
+    height: 80px;
+    vertical-align: top;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.today-highlight {
+    background-color: #fff3cd !important;
+    font-weight: bold;
+}
+
+.active-day {
+    background-color: #cfe2ff !important;
+}
+
+.solar-day {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+}
+
+.lunar-day {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.sticky-top {
+    top: 20px;
+    max-height: 95vh;
+    overflow-y: auto;
+}
+
+#logForm textarea {
+    min-height: 40px;
+    resize: vertical;
+}
