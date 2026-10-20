@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "bucket": "your-backup-bucket",
+  "region": "cn-beijing",
+  "endpoint": "https://oss-cn-beijing.aliyuncs.com",
+  "prefix": "shenzhen-bay-diary/"
+}

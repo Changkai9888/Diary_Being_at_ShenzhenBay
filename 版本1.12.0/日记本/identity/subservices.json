@@ -1,0 +1,6 @@
+{
+  "expected_service_id": "urn:uuid:f3d45386-1d65-4a3b-a7c6-70d2826b89f7",
+  "origin": "http://127.0.0.1:8766",
+  "entrypoint": "../../认知工作区/cognitive_workspace/server.py",
+  "python": null
+}

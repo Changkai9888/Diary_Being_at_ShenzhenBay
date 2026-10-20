@@ -1,0 +1,6 @@
+{
+  "identity_protocol": 1,
+  "service_id": "urn:uuid:f3d45386-1d65-4a3b-a7c6-70d2826b89f7",
+  "service_name": "认知工作区",
+  "service_role": "workspace"
+}

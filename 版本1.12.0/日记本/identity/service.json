@@ -1,0 +1,8 @@
+{
+  "service_id": "urn:uuid:c6e65645-aa71-479b-8f7e-fdd7e9efaeea",
+  "identity_protocol": 1,
+  "service_name": "深圳湾日记",
+  "service_role": "service-group",
+  "gateway_service_id": "urn:uuid:e56ef2d9-4867-48f7-8ab4-662de0a790c3",
+  "gateway_name": "日记本"
+}

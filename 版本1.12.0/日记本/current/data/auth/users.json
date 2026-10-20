@@ -1,0 +1,7 @@
+{
+  "demo_guest": {
+    "password_hash": "scrypt:32768:8:1$5hKPHr7NAZ43I7Qm$02b56e9acea039e95260df822bb75183bcfea351f02afc060638cff641393619cde896e6f8d5b04cccfbe1fdc414122298646851c9e4dcde5ee23a53b16094fd",
+    "locked_until": null,
+    "failed_attempts": 0
+  }
+}

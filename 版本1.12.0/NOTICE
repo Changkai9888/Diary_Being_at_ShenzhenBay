@@ -1,0 +1,10 @@
+License scope
+
+The root MIT License applies to the program source code and project
+documentation. Third-party dependencies retain their own licenses.
+
+The MP3 recordings in 日记本/current/assets/welcome-audio/ are bundled as
+separate audio assets. They are excluded from the root MIT License; this
+repository does not grant additional copyright permissions for these
+recordings. Keeping the recordings in a local installation does not change
+the license of the program source code.

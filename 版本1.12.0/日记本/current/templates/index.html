@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>日记本 · 深圳湾日记</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('diary.static', filename='css/style.css') }}">
+</head>
+<body data-diary-base="{{ url_for('diary.index') }}">
+    <div id="sessionGuard" class="session-guard" role="status" aria-live="polite">正在确认登录状态…</div>
+    <div id="diaryWorkspace" inert>
+    <div class="ambient-layer" aria-hidden="true">
+        <span class="orb orb-a"></span>
+        <span class="orb orb-b"></span>
+        <span class="orb orb-c"></span>
+    </div>
+    <!-- 深圳湾日记的服务导航与日记操作栏 -->
+    <div class="container-fluid diary-toolbar">
+        <div class="toolbar-main">
+            <div class="workspace-navigation">
+                <span class="workspace-brand">深圳湾日记</span>
+                <nav class="workspace-tabs" aria-label="深圳湾日记服务">
+                    <a class="workspace-tab active" href="{{ url_for('diary.index') }}" aria-current="page">日记本</a>
+                    <a class="workspace-tab workspace-tab-cognitive" href="{{ url_for('cognitive_proxy', subpath='') }}">认知工作区</a>
+                </nav>
+            </div>
+            <div class="toolbar-operations" role="group" aria-label="日记操作">
+                <div class="toolbar-primary">
+                    <div class="input-group toolbar-asset">
+                        <span class="input-group-text" id="assetLabel">总资产：</span>
+                        <div class="asset-input-wrap">
+                            <input id="assetInput" type="text" class="form-control" aria-labelledby="assetLabel" placeholder="默认隐藏，点击眼睛后可查看/编辑" />
+                            <button type="button" id="assetToggleBtn" class="asset-eye-btn" aria-label="显示总资产">👁</button>
+                        </div>
+                    </div>
+                    <button
+                        id="globalSaveBtn"
+                        type="button"
+                        class="btn btn-primary toolbar-action"
+                        onclick="document.getElementById('logForm').requestSubmit();"
+                    >
+                        💾 保存日志
+                    </button>
+                </div>
+                <button id="exportExcelBtn" type="button" class="btn btn-outline-success toolbar-action">
+                    导出日志到Excel
+                </button>
+                <small id="backupStatus" data-status-url="{{ url_for('diary.backup_status') }}"
+                       class="backup-status {{ 'backup-ok' if backup_status.healthy else 'backup-failed' }}"
+                       data-last-success="{{ backup_status.last_success_at or '' }}"
+                       title="{{ backup_status.detail }}" role="status" aria-live="polite">
+                    <span id="backupStatusLabel">{{ backup_status.label }}</span>
+                    <span class="backup-status-time">上次成功：<span id="backupSuccessTime">{{ backup_status.last_success_display }}</span></span>
+                </small>
+            </div>
+        </div>
+        <div class="menu-wrap">
+            <button type="button" class="menu-btn" id="mainMenuBtn" aria-label="打开主菜单">☰</button>
+            <div class="main-menu d-none" id="mainMenuPanel">
+                <div class="main-menu-title">主菜单</div>
+                <div class="main-menu-item">当前用户：{{ current_username }}</div>
+                <label class="main-menu-item d-flex justify-content-between align-items-center mt-2">
+                    <span>视觉特效</span>
+                    <input type="checkbox" id="uiFxToggle" checked>
+                </label>
+                <label class="main-menu-item d-flex justify-content-between align-items-center mt-2">
+                    <span>界面音效</span>
+                    <input type="checkbox" id="uiSoundToggle" checked>
+                </label>
+                <button type="button" id="helpMenuBtn" class="btn btn-outline-primary btn-sm w-100 mt-2">帮助说明</button>
+                <button type="button" id="changePasswordBtn" class="btn btn-outline-warning btn-sm w-100 mt-2">修改密码</button>
+                <form method="post" action="{{ url_for('diary.logout') }}" class="mt-2">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">登出</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid py-4">
+        <div class="row g-3">
+            <!-- 日历区 -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <button class="btn btn-light" onclick="changeMonth(-1)">← 上月</button>
+                        <h4 id="monthTitle" class="mb-0"></h4>
+                        <button class="btn btn-light" onclick="changeMonth(1)">下月 →</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered calendar-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>日</th><th>一</th><th>二</th><th>三</th>
+                                    <th>四</th><th>五</th><th>六</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendarBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card shadow mt-3">
+                    <div class="card-body">
+                        <label class="form-label" for="inFlightTasks">在途任务</label>
+                        <textarea class="form-control" id="inFlightTasks" name="在途任务"
+                                  form="logForm" rows="4" placeholder="在途任务..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志编辑区 -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg sticky-top">
+                    <div class="card-header bg-success text-white">
+                        <h5 id="logTitle" class="mb-0"></h5>
+                    </div>
+                    <div class="card-body">
+                        <!--<button type="submit" class="btn btn-primary w-100 mb-3" form="logForm">
+                            💾 保存日志
+                        </button>
+                        -->
+                        <form id="logForm" onsubmit="saveLog(event)">
+                            <div class="mb-3">
+                                <label class="form-label">天气</label>
+                                <select class="form-select" name="天气">
+                                    <option value="">请选择天气</option>
+                                    <option value="晴">☀️ 晴</option>
+                                    <option value="阴">☁️ 阴</option>
+                                    <option value="雨">🌧️ 雨</option>
+                                    <option value="雪">❄️ 雪</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">心情</label>
+                                <select class="form-select" name="心情">
+                                    <option value="">请选择心情</option>
+                                    <option>😊 开心</option>
+                                    <option>😐 平静</option>
+                                    <option>😔 难过</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">醒来状态</label>
+                                <textarea class="form-control" name="醒来状态" 
+                                          rows="1" placeholder="醒来状态..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">HP值</label>
+                                <textarea class="form-control" name="HP" 
+                                          rows="1" placeholder="HP..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">San值</label>
+                                <textarea class="form-control" name="San" 
+                                          rows="1" placeholder="San..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">心率</label>
+                                <textarea class="form-control" name="心率" 
+                                          rows="1" placeholder="心率..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">起床体重(斤)</label>
+                                <textarea class="form-control" name="起床体重" 
+                                          rows="1" placeholder="起床体重..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">腰围(cm)</label>
+                                <textarea class="form-control" name="腰围" 
+                                          rows="1" placeholder="腰围..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">用药与健康建议</label>
+                                <textarea class="form-control" name="用药与健康建议" 
+                                          rows="1" placeholder="用药与健康建议..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">计划与摘要</label>
+                                <textarea class="form-control" name="计划与摘要" 
+                                          rows="1" placeholder="计划与摘要..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">上午</label>
+                                <textarea class="form-control" name="上午" 
+                                          rows="2" placeholder="上午..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">下午</label>
+                                <textarea class="form-control" name="下午" 
+                                          rows="2" placeholder="下午..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">晚上</label>
+                                <textarea class="form-control" name="晚上" 
+                                          rows="2" placeholder="晚上..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">几天没做试验？</label>
+                                <textarea class="form-control" name="几天没做试验" 
+                                          rows="1" placeholder="几天没做试验..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">心得备注</label>
+                                <textarea class="form-control" name="心得备注" 
+                                          rows="2" placeholder="心得备注..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">待提升属性</label>
+                                <textarea class="form-control" name="待提升属性" 
+                                          rows="8" placeholder="待提升属性..."></textarea>
+
+                            <div class="mb-3"></div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="help-modal d-none" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
+        <div class="help-modal-backdrop" id="helpModalBackdrop"></div>
+        <div class="help-modal-panel">
+            <div class="help-modal-header">
+                <h5 id="helpModalTitle" class="mb-0">帮助说明</h5>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="helpModalCloseBtn">关闭</button>
+            </div>
+            <div class="help-modal-body">
+                <p><strong>1. 日志基础</strong><br>左侧点日期，右侧填写日志，点击顶部“保存日志”即可保存到当前用户数据。</p>
+                <p><strong>2. 总资产</strong><br>点击眼睛按钮可显示/隐藏，总资产仅控制显示，不影响日志保存。</p>
+                <p><strong>3. 在途任务与待提升属性</strong><br>记录当前持续推进的任务与待提升内容，点击“保存日志”统一保存；切换日期时保持当前内容，刷新后读取最近保存的内容。</p>
+                <p><strong>4. 个性化设置</strong><br>主菜单可开关视觉特效与界面音效；设置会保存到当前用户。</p>
+                <p><strong>5. 账号管理</strong><br>右上角主菜单可登出。登录页支持新用户注册，系统会自动创建用户目录。</p>
+                <p><strong>6. 认知工作区</strong><br>保存正在编辑的内容后，点击顶部“认知工作区”即可进入；点击工作区左上角图标可返回日记本。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="help-modal d-none" role="dialog" aria-modal="true" aria-labelledby="passwordModalTitle">
+        <div class="help-modal-backdrop" id="passwordModalBackdrop"></div>
+        <div class="help-modal-panel password-modal-panel">
+            <div class="help-modal-header">
+                <h5 id="passwordModalTitle" class="mb-0">修改密码</h5>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="passwordModalCloseBtn">关闭</button>
+            </div>
+            <div class="help-modal-body">
+                <div class="mb-3">
+                    <label class="form-label">旧密码</label>
+                    <input type="password" id="oldPasswordInput" class="form-control" autocomplete="current-password">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">新密码</label>
+                    <input type="password" id="newPasswordInput" class="form-control" autocomplete="new-password">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">确认新密码</label>
+                    <input type="password" id="confirmNewPasswordInput" class="form-control" autocomplete="new-password">
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="confirmChangePasswordBtn" class="btn btn-warning btn-sm">确认修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <script type="application/json" id="sessionConfig">{{ session_config | tojson }}</script>
+    <script src="{{ url_for('diary.static', filename='js/session_guard.js') }}"></script>
+    <script src="{{ url_for('diary.static', filename='js/calendar.js') }}"></script>
+    <script src="{{ url_for('diary.static', filename='js/backup_status.js') }}"></script>
+</body>
+</html>

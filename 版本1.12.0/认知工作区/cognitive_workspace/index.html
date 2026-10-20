@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#181c1d">
+  <meta name="color-scheme" content="dark">
+  <title>认知工作区 · 深圳湾日记</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230852c7'/%3E%3Cpath d='M11 12h18v12H19l-8 6z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H9l-5.5 4V6A1.5 1.5 0 0 1 5 4.5Z"/><path d="M8 9h8M8 13h5"/></symbol>
+    <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5L16 8Z"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="icon-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.8 8h.4M5.8 11h.4"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></symbol>
+    <symbol id="icon-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="m14 5 5 5M4 20l5-1 11-11a2 2 0 0 0-5-5L4 15Z"/></symbol>
+    <symbol id="icon-archive" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1"/><path d="M5 8v12h14V8M9 12h6"/></symbol>
+    <symbol id="icon-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></symbol>
+    <symbol id="icon-leaf" viewBox="0 0 24 24"><path d="M20 4c-1 7-1 13-8 14a6 6 0 0 1-6-6C7 5 13 5 20 4Z"/><path d="m4 21 11-11"/></symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#messageInput">跳到对话输入</a>
+  <div class="app-shell" id="appShell">
+    <button id="sidebarBackdrop" class="sidebar-backdrop" aria-label="关闭工作区列表" tabindex="-1"></button>
+    <aside id="sidebar" class="sidebar" aria-label="工作区导航">
+      <div class="brand-row">
+        <a id="diaryReturn" class="brand-mark" aria-label="认知工作区"><svg class="icon" aria-hidden="true"><use href="#icon-chat"/></svg></a>
+        <div class="brand-copy"><span class="brand-name">深圳湾日记</span><span class="brand-section">认知工作区</span></div>
+        <button id="sidebarClose" class="icon-button sidebar-close" title="关闭列表" aria-label="关闭工作区列表"><svg class="icon"><use href="#icon-close"/></svg></button>
+      </div>
+
+      <div class="sidebar-tools">
+        <button id="newWorkspace" class="button button-primary new-workspace"><svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg><span>新建工作区</span></button>
+        <label class="search-box"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><input id="workspaceSearch" type="search" placeholder="搜索工作区" aria-label="搜索工作区" autocomplete="off"></label>
+      </div>
+      <nav id="globalWorkspace" class="global-workspace-nav" aria-label="常驻全局工作区" hidden></nav>
+      <div class="list-heading"><span id="listLabel">我的工作区</span><span id="workspaceCount" class="count">0</span></div>
+      <nav id="workspaceList" class="workspace-list" aria-label="工作区列表"></nav>
+      <div class="sidebar-bottom">
+        <button id="archiveFilter" class="sidebar-utility" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#icon-archive"/></svg><span id="archiveLabel">已归档</span><svg class="icon small chevron" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+        <button id="profileButton" class="profile-button"><span class="profile-symbol"><svg class="icon" aria-hidden="true"><use href="#icon-person"/></svg></span><span><strong>关于我的认知</strong><small>习惯、偏好与思考方式</small></span><svg class="icon small chevron" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+        <div class="local-status"><span class="status-dot"></span><span id="localStatus">正在连接本地后台</span></div>
+      </div>
+    </aside>
+
+    <main class="workspace-main" id="mainContent">
+      <header class="workspace-header">
+        <button id="menuToggle" class="icon-button" aria-label="切换工作区列表" aria-controls="sidebar" aria-expanded="true" title="切换工作区列表"><svg class="icon"><use href="#icon-sidebar"/></svg></button>
+        <div class="workspace-heading"><div class="title-line"><h1 id="workspaceTitle">认知工作区</h1><span class="preview-badge">本地工作区</span></div><p id="workspaceSubline">围绕一个对象，持续讨论与思考</p></div>
+        <div class="header-actions">
+          <button id="infoToggle" class="icon-button" aria-label="工作区信息" aria-controls="infoPanel" aria-expanded="false" title="工作区信息"><svg class="icon"><use href="#icon-info"/></svg></button>
+          <button id="moreToggle" class="icon-button" aria-label="更多操作" aria-expanded="false" aria-controls="workspaceMenu" title="更多操作"><svg class="icon"><use href="#icon-dots"/></svg></button>
+        </div>
+        <div id="workspaceMenu" class="workspace-menu" role="group" aria-label="工作区操作" hidden>
+          <button id="renameWorkspace"><svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg>重命名</button>
+          <button id="archiveWorkspace"><svg class="icon" aria-hidden="true"><use href="#icon-archive"/></svg>归档工作区</button>
+        </div>
+      </header>
+
+      <div class="conversation-area">
+        <div class="goal-strip"><span class="goal-label"><span class="status-dot"></span>当前讨论</span><span id="goalText">把这个问题，一步步想清楚。</span><button id="editGoal" class="text-button" aria-label="编辑讨论目的">编辑<svg class="icon small" aria-hidden="true"><use href="#icon-edit"/></svg></button></div>
+        <div id="archiveBanner" class="archive-banner" hidden><svg class="icon" aria-hidden="true"><use href="#icon-archive"/></svg><span>这个工作区已归档，历史对话仍可查看。</span><button id="restoreWorkspace" class="text-button">恢复讨论</button></div>
+        <div class="conversation-scroll" id="conversationScroll">
+          <section id="messages" class="messages" aria-label="对话记录" aria-live="polite" aria-relevant="additions"></section>
+          <section id="emptyState" class="empty-state" hidden>
+            <div class="empty-symbol"><svg aria-hidden="true"><use href="#icon-layers"/></svg></div>
+            <p class="eyebrow">留一个空间，持续想清楚</p>
+            <h2>从一个问题开始</h2>
+            <p class="empty-description">一个人、一件事，或一个值得长期思考的问题。<br>在这里补充背景、交换想法，让讨论一步步向前。</p>
+            <div class="starters">
+              <button data-label="梳理正在推进的事" data-starter="我想梳理一件正在推进的事。先让我介绍一下目前的背景和目标。" data-global-label="聊聊生活与心情" data-global-starter="我想聊聊最近的生活和心情。先听我说说，不必急着给方案。"><svg class="icon" aria-hidden="true"><use href="#icon-layers"/></svg><span>梳理正在推进的事</span><svg class="icon small" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+              <button data-label="讨论沟通与合作" data-starter="我想围绕一个人的沟通与合作持续讨论。先从我们目前的关系说起。" data-global-label="谈谈家庭与关系" data-global-starter="我想聊一件与家庭或重要关系有关的事，先一起理清我的感受和处境。"><svg class="icon" aria-hidden="true"><use href="#icon-person"/></svg><span>讨论沟通与合作</span><svg class="icon small" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+              <button data-label="推敲一个长期问题" data-starter="我有一个想长期想清楚的问题。我希望先和你明确讨论的目的。" data-global-label="一起看长期方向" data-global-starter="我想从全局看看最近在意的事和长期方向；有需要时，请结合其他工作区的相关背景。"><svg class="icon" aria-hidden="true"><use href="#icon-leaf"/></svg><span>推敲一个长期问题</span><svg class="icon small" aria-hidden="true"><use href="#icon-chevron"/></svg></button>
+            </div>
+          </section>
+        </div>
+
+        <div class="composer-section">
+          <form id="composerForm" class="composer">
+            <label class="sr-only" for="messageInput">对话内容</label>
+            <textarea id="messageInput" rows="2" placeholder="继续讨论，或补充新的信息…" maxlength="16000"></textarea>
+            <div class="composer-toolbar"><div class="model-picker"><svg class="icon small" aria-hidden="true"><use href="#icon-layers"/></svg><label class="sr-only" for="modelSelect">模型偏好</label><select id="modelSelect"><option value="auto">自动选择</option><option value="flash">DeepSeek4 Flash</option><option value="pro">DeepSeek4 Pro</option></select></div><span class="keyboard-hint">Enter 发送 · Shift + Enter 换行</span><button id="sendButton" class="send-button" type="submit" aria-label="发送消息" title="发送给思考伙伴" disabled><svg class="icon" aria-hidden="true"><use href="#icon-arrow"/></svg></button></div>
+          </form>
+          <p id="draftNotice" class="composer-notice">正在连接本地后台，连接后可开始讨论</p>
+        </div>
+
+        <aside id="infoPanel" class="info-panel" aria-label="工作区信息" hidden>
+          <div class="panel-heading"><div><span class="eyebrow">WORKSPACE</span><h2>工作区信息</h2></div><button id="infoClose" class="icon-button" aria-label="关闭工作区信息"><svg class="icon"><use href="#icon-close"/></svg></button></div>
+          <form id="infoForm"><label for="infoName">工作区名称</label><input id="infoName" required maxlength="60" autocomplete="off"><label for="infoPurpose">我们正在讨论什么</label><textarea id="infoPurpose" rows="5" maxlength="500" placeholder="用一句话说明当前的讨论目的"></textarea><p class="field-help">目的可以随着讨论改变。这里先保留你当前的定义。</p><button id="saveInfoButton" class="button button-primary" type="submit">保存修改</button></form>
+          <div class="panel-note"><svg class="icon" aria-hidden="true"><use href="#icon-chat"/></svg><p>历史对话保存在本地后台。共享认知及其来源可在「关于我的认知」中查看，也可以通过对话纠正。</p></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="workspaceDialog" class="dialog">
+    <form id="workspaceForm"><div class="dialog-heading"><span class="dialog-symbol"><svg class="icon" aria-hidden="true"><use href="#icon-chat"/></svg></span><h2 id="workspaceDialogTitle">新建工作区</h2><p>为一段值得持续的讨论，留一个位置。</p></div><label for="workspaceName">名称</label><input id="workspaceName" placeholder="例如：商业合作与沟通" maxlength="60" autocomplete="off" required><label for="workspacePurpose">讨论目的 <span class="optional">可选</span></label><textarea id="workspacePurpose" rows="3" placeholder="这次，我们想一起想清楚什么？" maxlength="500"></textarea><div class="dialog-actions"><button id="workspaceCancel" class="button button-secondary" type="button">取消</button><button id="workspaceSubmit" class="button button-primary" type="submit">创建工作区</button></div></form>
+  </dialog>
+
+  <dialog id="profileDialog" class="dialog profile-dialog">
+    <form id="profileForm"><div class="dialog-heading"><span class="dialog-symbol green"><svg class="icon" aria-hidden="true"><use href="#icon-person"/></svg></span><h2>关于我的认知</h2><p>让不同的讨论，都能逐步理解同一个你。</p></div><div class="profile-explainer"><span class="status-dot"></span><span>共享认知 · 手动备注与自动记录</span></div><label for="profileNotes">希望被理解的习惯、偏好和思考方式</label><textarea id="profileNotes" rows="7" maxlength="10000" placeholder="例如：先和我确认现实与目的；有依据的不同意见可以直接说。"></textarea><p id="profileStatus" class="field-help">手动备注由本地后台保存。自动认知记录会显示来源，可以通过对话纠正。</p><div class="dialog-actions"><button id="profileCancel" class="button button-secondary" type="button">关闭</button><button class="button button-primary" type="submit">保存备注</button></div></form>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
